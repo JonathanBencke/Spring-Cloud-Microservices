@@ -6,7 +6,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.jbsoft.store.controller.dto.PurchaseDTO;
+import com.jbsoft.store.dto.PurchaseDTO;
+import com.jbsoft.store.model.Purchase;
 import com.jbsoft.store.service.PurchaseService;
 
 @RestController
@@ -17,8 +18,8 @@ public class PurchaseController {
 	private PurchaseService purchaseService;
 	
 	@RequestMapping(method = RequestMethod.POST)
-	public void purchase(@RequestBody PurchaseDTO purchase) {
-		purchaseService.makePurchase(purchase);
+	public Purchase purchase(@RequestBody PurchaseDTO purchase) {
+		return purchaseService.makePurchase(purchase);
 	}
 	
 }

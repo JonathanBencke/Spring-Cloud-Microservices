@@ -1,4 +1,4 @@
-package com.jbsoft.store.controller.dto;
+package com.jbsoft.store.dto;
 
 public class AddressDTO {
 
@@ -28,6 +28,11 @@ public class AddressDTO {
 
 	public void setDistrict(String district) {
 		this.district = district;
+	}
+
+	@Override
+	public String toString() {
+		return "AddressDTO [street=" + street + ", number=" + number + ", district=" + district + "]";
 	}
 
 }

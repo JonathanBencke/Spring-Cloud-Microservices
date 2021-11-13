@@ -1,4 +1,4 @@
-package com.jbsoft.store.controller.dto;
+package com.jbsoft.store.dto;
 
 public class InfoSupplierDTO {
 
