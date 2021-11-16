@@ -9,6 +9,7 @@ import com.jbsoft.store.dto.InfoOrderDTO;
 import com.jbsoft.store.dto.InfoSupplierDTO;
 import com.jbsoft.store.dto.PurchaseDTO;
 import com.jbsoft.store.model.Purchase;
+import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
 
 @Service
 public class PurchaseService {
@@ -18,12 +19,13 @@ public class PurchaseService {
 	@Autowired
 	private SupplierClient supplierClient;
 
+	@HystrixCommand(fallbackMethod = "makePurchaseFallback")
 	public Purchase makePurchase(PurchaseDTO purchase) {
 		String district = purchase.getAddress().getDistrict();
-		
+
 		LOG.info("Get supplier info by district {}", district);
 		InfoSupplierDTO info = supplierClient.getInfoByDistrict(district);
-		
+
 		LOG.info("Making order.");
 		InfoOrderDTO order = supplierClient.makeOrder(purchase.getItens());
 		System.out.println(info.getAddress());
@@ -33,6 +35,11 @@ public class PurchaseService {
 		purchaseDb.setPrepareTime(order.getPrepareTime());
 		purchaseDb.setDestinationAddress(purchase.getAddress().toString());
 		return purchaseDb;
+	}
+
+	public Purchase makePurchaseFallback(PurchaseDTO purchase) {
+		Purchase purchaseFallback = new Purchase();
+		return purchaseFallback;
 	}
 
 }
