@@ -9,6 +9,7 @@ import com.jbsoft.store.dto.InfoOrderDTO;
 import com.jbsoft.store.dto.InfoSupplierDTO;
 import com.jbsoft.store.dto.PurchaseDTO;
 import com.jbsoft.store.model.Purchase;
+import com.jbsoft.store.repository.PurchaseRepository;
 import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
 
 @Service
@@ -19,7 +20,10 @@ public class PurchaseService {
 	@Autowired
 	private SupplierClient supplierClient;
 
-	@HystrixCommand(fallbackMethod = "makePurchaseFallback")
+	@Autowired
+	private PurchaseRepository purchaseRepository;
+
+	@HystrixCommand(fallbackMethod = "makePurchaseFallback", threadPoolKey = "makePurchaseThreadPool")
 	public Purchase makePurchase(PurchaseDTO purchase) {
 		String district = purchase.getAddress().getDistrict();
 
@@ -34,6 +38,7 @@ public class PurchaseService {
 		purchaseDb.setPurchaseId(order.getId());
 		purchaseDb.setPrepareTime(order.getPrepareTime());
 		purchaseDb.setDestinationAddress(purchase.getAddress().toString());
+		this.purchaseRepository.save(purchaseDb);
 		return purchaseDb;
 	}
 
@@ -42,4 +47,14 @@ public class PurchaseService {
 		return purchaseFallback;
 	}
 
+	@HystrixCommand(fallbackMethod = "getByIdFallback", threadPoolKey = "getByIdThreadPool")
+	public Purchase getById(Long id) {
+		return this.purchaseRepository.findById(id).orElse(new Purchase());
+	}
+
+	public Purchase getByIdFallback(Long id) {
+		Purchase purchaseFallback = new Purchase();
+		return purchaseFallback;
+	}
+	
 }

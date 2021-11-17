@@ -1,7 +1,12 @@
 package com.jbsoft.store.model;
 
+import javax.persistence.Entity;
+import javax.persistence.Id;
+
+@Entity
 public class Purchase {
 
+	@Id
 	private Long purchaseId;
 	private Integer prepareTime;
 	private String destinationAddress;
