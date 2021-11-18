@@ -15,6 +15,7 @@ import com.jbsoft.store.dto.InfoSupplierDTO;
 import com.jbsoft.store.dto.PurchaseDTO;
 import com.jbsoft.store.dto.VoucherDTO;
 import com.jbsoft.store.model.Purchase;
+import com.jbsoft.store.model.PurchaseState;
 import com.jbsoft.store.repository.PurchaseRepository;
 import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
 
@@ -32,15 +33,34 @@ public class PurchaseService {
 	@Autowired
 	private PurchaseRepository purchaseRepository;
 
+	public Purchase reprocessPurchase(PurchaseDTO purchase) {
+		return null;
+		// TODO
+	}
+
+	public Purchase cancelPurchase(PurchaseDTO purchase) {
+		return null;
+		// TODO
+	}
+
 	@HystrixCommand(fallbackMethod = "makePurchaseFallback", threadPoolKey = "makePurchaseThreadPool")
 	public Purchase makePurchase(PurchaseDTO purchase) {
+
+		Purchase purchaseDb = new Purchase();
+		purchaseDb.setPurchaseState(PurchaseState.RECEIVED);
+		this.purchaseRepository.save(purchaseDb);
+		purchase.setPurchaseId(purchaseDb.getId());
+
 		String district = purchase.getAddress().getDistrict();
 
 		LOG.info("Get supplier info by district {}", district);
 		InfoSupplierDTO info = supplierClient.getInfoByDistrict(district);
-
 		InfoOrderDTO order = supplierClient.makeOrder(purchase.getItens());
-		System.out.println(info.getAddress());
+		purchaseDb.setPurchaseState(PurchaseState.ORDER_FINISHED);
+		purchaseDb.setPurchaseId(order.getId());
+		purchaseDb.setPrepareTime(order.getPrepareTime());
+		purchaseDb.setDestinationAddress(purchase.getAddress().toString());
+		this.purchaseRepository.save(purchaseDb);
 
 		InfoDeliveryDTO deliveryDto = new InfoDeliveryDTO();
 		deliveryDto.setOrderId(order.getId());
@@ -48,19 +68,19 @@ public class PurchaseService {
 		deliveryDto.setOrigemAddress(info.getAddress());
 		deliveryDto.setDestinyAddress(purchase.getAddress().toString());
 		VoucherDTO voucher = shippingClient.reserveShipping(deliveryDto);
-
-		Purchase purchaseDb = new Purchase();
-		purchaseDb.setPurchaseId(order.getId());
-		purchaseDb.setPrepareTime(order.getPrepareTime());
-		purchaseDb.setDestinationAddress(purchase.getAddress().toString());
+		purchaseDb.setPurchaseState(PurchaseState.DELIVERY_FINISHED);
 		purchaseDb.setDeliveryDate(voucher.getDeliveryDate());
 		purchaseDb.setVoucher(voucher.getNumber());
 		this.purchaseRepository.save(purchaseDb);
-		
+
 		return purchaseDb;
+
 	}
 
 	public Purchase makePurchaseFallback(PurchaseDTO purchase) {
+		if (purchase.getPurchaseId() != null) {
+			return purchaseRepository.findById(purchase.getPurchaseId()).get();
+		}
 		Purchase purchaseFallback = new Purchase();
 		return purchaseFallback;
 	}
