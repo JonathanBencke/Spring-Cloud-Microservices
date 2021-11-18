@@ -1,6 +1,6 @@
 spring:
   application:
-    name: 'shipping-company'
+    name: 'shipping'
   profiles:
     active: default
   cloud:

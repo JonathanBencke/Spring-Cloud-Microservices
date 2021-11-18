@@ -1,5 +1,7 @@
 package com.jbsoft.store.model;
 
+import java.time.LocalDate;
+
 import javax.persistence.Entity;
 import javax.persistence.Id;
 
@@ -10,6 +12,8 @@ public class Purchase {
 	private Long purchaseId;
 	private Integer prepareTime;
 	private String destinationAddress;
+	private LocalDate deliveryDate;
+	private Long voucher;
 
 	public Long getPurchaseId() {
 		return purchaseId;
@@ -33,6 +37,22 @@ public class Purchase {
 
 	public void setDestinationAddress(String destinationAddress) {
 		this.destinationAddress = destinationAddress;
+	}
+
+	public LocalDate getDeliveryDate() {
+		return deliveryDate;
+	}
+
+	public void setDeliveryDate(LocalDate deliveryDate) {
+		this.deliveryDate = deliveryDate;
+	}
+
+	public Long getVoucher() {
+		return voucher;
+	}
+
+	public void setVoucher(Long voucher) {
+		this.voucher = voucher;
 	}
 
 }
