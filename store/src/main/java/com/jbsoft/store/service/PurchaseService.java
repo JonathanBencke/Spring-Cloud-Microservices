@@ -48,6 +48,7 @@ public class PurchaseService {
 
 		Purchase purchaseDb = new Purchase();
 		purchaseDb.setPurchaseState(PurchaseState.RECEIVED);
+		purchaseDb.setDestinationAddress(purchase.getAddress().toString());
 		this.purchaseRepository.save(purchaseDb);
 		purchase.setPurchaseId(purchaseDb.getId());
 
@@ -59,7 +60,6 @@ public class PurchaseService {
 		purchaseDb.setPurchaseState(PurchaseState.ORDER_FINISHED);
 		purchaseDb.setPurchaseId(order.getId());
 		purchaseDb.setPrepareTime(order.getPrepareTime());
-		purchaseDb.setDestinationAddress(purchase.getAddress().toString());
 		this.purchaseRepository.save(purchaseDb);
 
 		InfoDeliveryDTO deliveryDto = new InfoDeliveryDTO();
